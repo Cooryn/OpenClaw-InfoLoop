@@ -1,0 +1,30 @@
+# Environment files
+.env
+.env.*
+
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Build and packaging
+build/
+dist/
+*.egg-info/
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+
+# Generated artifacts
+*.docx
+*.jpg
+*.jpeg
+*.png

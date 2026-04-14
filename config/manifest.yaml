@@ -1,0 +1,137 @@
+manifest_version: "1.0"
+project:
+  name: OpenClaw-InfoLoop
+  display_name: InfoLoop Human-in-the-Loop Content Operation Engine
+  version: "0.1.0"
+  language: python
+  description: >
+    AI-driven, human-in-the-loop content operations pipeline for discovery,
+    candidate selection support, long-form production, and trend evolution.
+
+runtime:
+  python: ">=3.10"
+  env_file: .env
+  dependencies_file: requirements.txt
+
+tools:
+  - name: fetch_articles
+    module: skills.web_radar
+    function: fetch_articles
+    description: >
+      Discover candidate articles from monitored URLs with optional keyword
+      filters. Uses PROXY_URL first and HTTP_PROXY as fallback.
+    input_schema:
+      type: object
+      properties:
+        urls:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        keywords:
+          type: array
+          items:
+            type: string
+      required:
+        - urls
+    output_schema:
+      type: array
+      items:
+        type: object
+
+  - name: summarize_articles
+    module: skills.web_radar
+    function: summarize_articles
+    description: >
+      Summarize fetched articles into concise records for user-facing digest and
+      selection.
+    input_schema:
+      type: object
+      properties:
+        raw_data:
+          type: array
+          items:
+            type: object
+      required:
+        - raw_data
+    output_schema:
+      type: array
+      items:
+        type: object
+
+  - name: send_digest_email
+    module: skills.mail_notifier
+    function: send_digest_email
+    description: >
+      Deliver indexed HTML digest email with title, category, and summary blocks
+      so users can reference candidates by number in chat.
+    input_schema:
+      type: object
+      properties:
+        summarized_json:
+          type: array
+          items:
+            type: object
+      required:
+        - summarized_json
+    output_schema:
+      type: boolean
+
+  - name: expand_content
+    module: skills.content_studio
+    function: expand_content
+    description: >
+      Expand user-selected snippets and full source cache into long-form WeChat
+      article drafts.
+    input_schema:
+      type: object
+      properties:
+        selected_indices:
+          type: array
+          items:
+            type: integer
+        full_cache:
+          type: array
+          items:
+            type: object
+      required:
+        - selected_indices
+        - full_cache
+    output_schema:
+      type: object
+
+  - name: post_to_wechat
+    module: skills.content_studio
+    function: post_to_wechat
+    description: >
+      Publish approved article drafts to WeChat Official Account workflow.
+    input_schema:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+      required:
+        - title
+        - content
+    output_schema:
+      type: object
+
+  - name: generate_trend_report
+    module: skills.trend_analyzer
+    function: generate_trend_report
+    description: >
+      Extract entities and keywords from daily text corpus and output next-day
+      monitoring strategy.
+    input_schema:
+      type: object
+      properties:
+        all_daily_text:
+          type: array
+          items:
+            type: string
+      required:
+        - all_daily_text
+    output_schema:
+      type: object
