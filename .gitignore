@@ -1,6 +1,5 @@
 # Environment files
 .env
-.env.*
 
 # Python cache and bytecode
 __pycache__/
@@ -28,3 +27,5 @@ dist/
 *.jpg
 *.jpeg
 *.png
+
+README_CN.md
