@@ -38,6 +38,24 @@ tools:
       type: array
       items:
         type: object
+        properties:
+          url:
+            type: string
+          title:
+            type: string
+          publication_date:
+            type:
+              - string
+              - "null"
+          category:
+            type: string
+          content:
+            type: string
+        required:
+          - url
+          - title
+          - category
+          - content
 
   - name: summarize_articles
     module: skills.web_radar
@@ -52,12 +70,51 @@ tools:
           type: array
           items:
             type: object
+            properties:
+              url:
+                type: string
+              title:
+                type: string
+              publication_date:
+                type:
+                  - string
+                  - "null"
+              category:
+                type: string
+              content:
+                type: string
+            required:
+              - url
+              - title
+              - category
+              - content
       required:
         - raw_data
     output_schema:
       type: array
       items:
         type: object
+        properties:
+          index:
+            type: integer
+          url:
+            type: string
+          title:
+            type: string
+          category:
+            type: string
+          publication_date:
+            type:
+              - string
+              - "null"
+          summary:
+            type: string
+        required:
+          - index
+          - url
+          - title
+          - category
+          - summary
 
   - name: send_digest_email
     module: skills.mail_notifier
@@ -72,6 +129,23 @@ tools:
           type: array
           items:
             type: object
+            properties:
+              index:
+                type:
+                  - integer
+                  - string
+              title:
+                type: string
+              category:
+                type: string
+              summary:
+                type: string
+              url:
+                type: string
+            required:
+              - title
+              - category
+              - summary
       required:
         - summarized_json
     output_schema:
@@ -88,23 +162,54 @@ tools:
       properties:
         selected_indices:
           type: array
+          minItems: 1
           items:
             type: integer
         full_cache:
           type: array
           items:
             type: object
+            properties:
+              index:
+                type: integer
+              title:
+                type: string
+              category:
+                type: string
+              summary:
+                type: string
+              publication_date:
+                type:
+                  - string
+                  - "null"
+              url:
+                type: string
+              content:
+                type: string
+            required:
+              - title
+              - category
+              - content
       required:
         - selected_indices
         - full_cache
     output_schema:
       type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+      required:
+        - title
+        - content
 
   - name: post_to_wechat
     module: skills.content_studio
     function: post_to_wechat
     description: >
-      Publish approved article drafts to WeChat Official Account workflow.
+      Create a WeChat Official Account draft from approved article content and
+      configured cover media.
     input_schema:
       type: object
       properties:
@@ -117,6 +222,20 @@ tools:
         - content
     output_schema:
       type: object
+      properties:
+        status:
+          type: string
+        access_token:
+          type: string
+        thumb_media_id:
+          type: string
+        draft_media_id:
+          type: string
+      required:
+        - status
+        - access_token
+        - thumb_media_id
+        - draft_media_id
 
   - name: generate_trend_report
     module: skills.trend_analyzer
@@ -135,3 +254,37 @@ tools:
         - all_daily_text
     output_schema:
       type: object
+      properties:
+        document_count:
+          type: integer
+        top_entities:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              count:
+                type: integer
+            required:
+              - name
+              - count
+        top_keywords:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              count:
+                type: integer
+            required:
+              - name
+              - count
+        next_day_strategy:
+          type: string
+      required:
+        - document_count
+        - top_entities
+        - top_keywords
+        - next_day_strategy
